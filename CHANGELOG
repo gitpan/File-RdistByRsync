@@ -1,0 +1,11 @@
+    Version 0.2, Jan 31, 2002
+
+Slaven Rezic <rezic@onlineoffice.de> noticed that the 
+command wrapper (rdist2rsync) used the old name of the
+module (and thus didn't work).  Also the "require 5.6.1"
+was moved to Makefile.PL and documented.
+
+    Version 0.1, Jan 08, 2002
+
+Initial release.
+

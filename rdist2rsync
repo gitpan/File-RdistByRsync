@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl
 
-use Text::ParseRdist;
+use File::RdistByRsync;
 
 rsync(@ARGV);

@@ -1,4 +1,6 @@
 
+require 5.6.0;  # for use of "our" variables.   Otherwise nothing fancy
+
 use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile being created.

@@ -7,13 +7,11 @@ use File::Find;
 use File::Slurp;
 require Exporter;
 
-require 5.6.1;
-
 @ISA = Exporter;
 @EXPORT = qw(parse_rdist rdist rsync);
 
 our($VERSION);
-$VERSION = 0.1;
+$VERSION = 0.2;
 
 use strict;
 
