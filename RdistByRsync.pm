@@ -11,7 +11,7 @@ require Exporter;
 @EXPORT = qw(parse_rdist rdist rsync);
 
 our($VERSION);
-$VERSION = 0.2;
+$VERSION = 0.3;
 
 use strict;
 
@@ -348,8 +348,7 @@ sub rsync
 
 	convert_pats_to_globs(@distributes);
 
-	our(@hosts);
-
+	my @hosts = @{$extras->{HOSTS}};
 	my %hosts;
 	@hosts{@hosts} = @hosts;
 
@@ -361,10 +360,10 @@ sub rsync
 			next if @hosts && ! $hosts{$h};
 			for my $i (@{$d->{INSTALL}}) {
 				if ($i->{DESTINATION} && $i->{DESTINATION} !~ /:$/) {
-					do_rsync($args, $d, $h, $i, $i->{DESTINATION});
+					do_rsync($args, $d, $h, $i, $i->{DESTINATION}, undef, $extras);
 				} else {
-					do_rsync($args, $d, $h, $i, "$i->{DESTINATION}/", qr,^/,);
-					do_rsync($args, $d, $h, $i, "$i->{DESTINATION}", qr,^[^/],);
+					do_rsync($args, $d, $h, $i, "$i->{DESTINATION}/", qr|^/|, $extras);
+					do_rsync($args, $d, $h, $i, "$i->{DESTINATION}", qr|^[^/]|, $extras);
 				}
 			}
 		}
@@ -377,7 +376,7 @@ use Data::Dumper;
 
 sub do_rsync
 {
-	my ($args, $d, $host, $i, $dest, $filefilter) = @_;
+	my ($args, $d, $host, $i, $dest, $filefilter, $extras) = @_;
 
 	my @ra;
 	my @unlink;
@@ -437,11 +436,18 @@ sub do_rsync
 	}
 
 	# push(@ra, "--force");
-	# push(@ra, "--hard-links");  slow...
+	push(@ra, "--hard-links");  # slow, but the alternative is bad
 	push(@ra, "--recursive");
 
 	if ($args->{'-w'} || $i->{FLAGS}{w} || $dest eq '/' || $dest eq '') {
-		push(@ra, "--relative");
+		if (@files == 1 && $files[0] !~ /[\]\[\*\?\{\}]/) {
+			$dest .= "/" unless $dest =~ m,/$,;
+			my $f = $files[0];
+			$f =~ s,^/,,;
+			$dest .= $f;
+		} else {
+			push(@ra, "--relative");
+		}
 	}
 
 	if ($args->{'-v'}) {
@@ -471,6 +477,8 @@ sub do_rsync
 	}
 
 	push(@ra, @{$d->{RSYNC_OPTION}});
+
+	push(@ra, @{$extras->{RSYNCOPT}});
 
 	push(@ra, @files);
 
